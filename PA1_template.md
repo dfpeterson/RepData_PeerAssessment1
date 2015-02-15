@@ -15,7 +15,8 @@ Here I:
 - Add a match key to use when filling in the missing data
 - Merge it all back with the original data source
 
-```{r}
+
+```r
 library(ggplot2)
 the.data <- read.csv('C:/data/activity.csv', stringsAsFactors=FALSE)
 the.data$date <- as.Date(the.data$date)
@@ -30,7 +31,8 @@ the.data <- cbind(the.data, dec.interval, day.type, match.key)
 
 <h1>1. What is mean total number of steps taken per day?</h1>
 
-```{r}
+
+```r
 grouped.data <- aggregate(the.data$steps[!is.na(the.data$steps)],
                           by=list(the.data$date[!is.na(the.data$steps)]),
                           FUN=sum)
@@ -38,22 +40,40 @@ qplot(x, data=grouped.data, xlab="Total Daily Steps",
       ylab="Frequency") + geom_histogram(aes(fill = ..count..))
 ```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
 The mean of the steps
 
-```{r}
+
+```r
 mean(grouped.data$x)
+```
+
+```
+## [1] 10766.19
 ```
 
 The median of the steps
 
-```{r}
+
+```r
 median(grouped.data$x)
+```
+
+```
+## [1] 10765
 ```
 
 
 <h1>2. What is the average daily activity pattern?</h1>
 
-```{r}
+
+```r
 interval.data <- aggregate(the.data$steps[!is.na(the.data$steps)],
                            by=list(the.data$dec.interval[!is.na(
                              the.data$steps)], the.data$interval[!is.na(
@@ -62,19 +82,27 @@ qplot(Group.1, x, data=interval.data, geom=c("line"),
       xlab="Time", ylab="Average Steps")
 ```
 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
+
 The interval with them highest average steps
 
-```{r}
+
+```r
 max.steps <- interval.data$Group.2[interval.data$x==max(interval.data$x)]
 paste(as.character(floor(max.steps/100)), ":", as.character(
   max.steps-floor(max.steps/100)*100), sep="")
+```
+
+```
+## [1] "8:35"
 ```
 
 <h1>3. Imputing missing values</h1>
 
 Here I chose to match the missing values with the corresponding day type and interval
 
-```{r}
+
+```r
 day.type.data <- aggregate(the.data$steps[!is.na(the.data$steps)],
                            by=list(the.data$dec.interval[!is.na(
                              the.data$steps)], 
@@ -95,23 +123,43 @@ qplot(x, data=grouped.fixed.data, xlab="Total Daily Steps",
       ylab="Frequency") + geom_histogram(aes(fill = ..count..))
 ```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png) 
+
 The mean of the fixed data
 
-```{r}
+
+```r
 mean(grouped.fixed.data$x)
+```
+
+```
+## [1] 10761.9
 ```
 
 The median of the fixed data
 
-```{r}
+
+```r
 median(grouped.fixed.data$x)
+```
+
+```
+## [1] 10571
 ```
 
 <h1>4. Are there differences in activity patterns between weekdays and weekends?</h1>
 
-```{r}
+
+```r
 qplot(Group.1, x, data=day.type.data, geom=c("line"), color=Group.3, 
       xlab="Time", ylab="Average Steps")
 ```
+
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
 
 
