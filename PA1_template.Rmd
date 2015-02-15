@@ -1,25 +1,117 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Reproducible Research Project 1"
+author: "David Peterson"
+date: "Sunday, February 15, 2015"
+output: html_document
 ---
 
+#0 Initialize The Data
 
-## Loading and preprocessing the data
+Here I:
+
+- Read in the data
+- Normalize the interval since it's a time in a decimal format, as is there are gaps between the end of an hour and the beginning of the next. I convert it to base 100 (so that 430 becomes 450)
+- Add a vairable indicating whether or not a date is a weekday or weekend
+- Add a match key to use when filling in the missing data
+- Merge it all back with the original data source
+
+```{r}
+library(ggplot2)
+the.data <- read.csv('C:/data/activity.csv', stringsAsFactors=FALSE)
+the.data$date <- as.Date(the.data$date)
+dec.interval <- round((floor(the.data$interval/100)*60 + (
+  the.data$interval - floor(the.data$interval/100)*100))/0.6)
+day.type <- weekdays(the.data$date)
+day.type[grep("^S", day.type)] <- "Weekend"
+day.type[day.type!="Weekend"] <- "Weekday"
+match.key <- paste(day.type, the.data$interval, sep="")
+the.data <- cbind(the.data, dec.interval, day.type, match.key)
+```
+
+#1. What is mean total number of steps taken per day?
+
+```{r}
+grouped.data <- aggregate(the.data$steps[!is.na(the.data$steps)],
+                          by=list(the.data$date[!is.na(the.data$steps)]),
+                          FUN=sum)
+qplot(x, data=grouped.data, xlab="Total Daily Steps",
+      ylab="Frequency") + geom_histogram(aes(fill = ..count..))
+```
+
+The mean of the steps
+
+```{r}
+mean(grouped.data$x)
+```
+
+The median of the steps
+
+```{r}
+median(grouped.data$x)
+```
 
 
+#2. What is the average daily activity pattern?
 
-## What is mean total number of steps taken per day?
+```{r}
+interval.data <- aggregate(the.data$steps[!is.na(the.data$steps)],
+                           by=list(the.data$dec.interval[!is.na(
+                             the.data$steps)], the.data$interval[!is.na(
+                               the.data$steps)]), FUN=mean)
+qplot(Group.1, x, data=interval.data, geom=c("line"),
+      xlab="Time", ylab="Average Steps")
+```
+
+The interval with them highest average steps
+
+```{r}
+max.steps <- interval.data$Group.2[interval.data$x==max(interval.data$x)]
+paste(as.character(floor(max.steps/100)), ":", as.character(
+  max.steps-floor(max.steps/100)*100), sep="")
+```
+
+#3. Imputing missing values
+
+Here I chose to match the missing values with the corresponding day type and interval
+
+```{r}
+day.type.data <- aggregate(the.data$steps[!is.na(the.data$steps)],
+                           by=list(the.data$dec.interval[!is.na(
+                             the.data$steps)], 
+                             the.data$interval[!is.na(
+                               the.data$steps)],
+                             the.data$day.type[!is.na(
+                               the.data$steps)],
+                             the.data$match.key[!is.na(
+                               the.data$steps)]), FUN=mean)
+fixed.data <- merge(the.data, day.type.data, by.x="match.key",
+                    by.y="Group.4")
+fixed.data$steps[is.na(fixed.data$steps)] <- round(
+  fixed.data$x[is.na(fixed.data$steps)])
+grouped.fixed.data <- aggregate(fixed.data$steps,
+                                by=list(fixed.data$date), FUN=sum)
+
+qplot(x, data=grouped.fixed.data, xlab="Total Daily Steps",
+      ylab="Frequency") + geom_histogram(aes(fill = ..count..))
+```
+
+The mean of the fixed data
+
+```{r}
+mean(grouped.fixed.data$x)
+```
+
+The median of the fixed data
+
+```{r}
+median(grouped.fixed.data$x)
+```
+
+#4. Are there differences in activity patterns between weekdays and weekends?
+
+```{r}
+qplot(Group.1, x, data=day.type.data, geom=c("line"), color=Group.3, 
+      xlab="Time", ylab="Average Steps")
+```
 
 
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
