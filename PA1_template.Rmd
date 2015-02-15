@@ -5,7 +5,7 @@ date: "Sunday, February 15, 2015"
 output: html_document
 ---
 
-#0 Initialize The Data
+#0. Initialize The Data
 
 Here I:
 
