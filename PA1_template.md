@@ -1,7 +1,7 @@
 ---
 title: "Reproducible Research Project 1"
 author: "David Peterson"
-date: "Sunday, February 15, 2015"
+date: "Sunday, March  15, 2015"
 output: html_document
 ---
 
@@ -10,7 +10,7 @@ output: html_document
 Here I:
 
 - Read in the data
-- Normalize the interval since it's a time in a decimal format, as is there are gaps between the end of an hour and the beginning of the next. I convert it to base 100 (so that 430 becomes 450)
+- Normalize the interval. Since it's a time in a decimal format, as is there are gaps between the end of an hour and the beginning of the next. I convert it to base 100 (so that 445 becomes 475)
 - Add a vairable indicating whether or not a date is a weekday or weekend
 - Add a match key to use when filling in the missing data
 - Merge it all back with the original data source
@@ -47,7 +47,7 @@ qplot(x, data=grouped.data, xlab="Total Daily Steps",
 
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
 
-The mean of the steps
+The mean of total steps taken per day
 
 
 ```r
@@ -58,7 +58,7 @@ mean(grouped.data$x)
 ## [1] 10766.19
 ```
 
-The median of the steps
+The median of total steps taken per day
 
 
 ```r
@@ -84,7 +84,7 @@ qplot(Group.1, x, data=interval.data, geom=c("line"),
 
 ![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
 
-The interval with them highest average steps
+The interval with the highest average steps
 
 
 ```r
@@ -99,7 +99,18 @@ paste(as.character(floor(max.steps/100)), ":", as.character(
 
 <h1>3. Imputing missing values</h1>
 
-Here I chose to match the missing values with the corresponding day type and interval
+Number of intervals with missing step values
+
+
+```r
+sum(is.na(the.data$steps))
+```
+
+```
+## [1] 2304
+```
+
+Here I chose to match the missing values with the corresponding day type (weekend or weekday) and interval. For example a 8:45 weekday missing value would get the average value of a 8:45 weekday across all other values.
 
 
 ```r
@@ -128,9 +139,9 @@ qplot(x, data=grouped.fixed.data, xlab="Total Daily Steps",
 ## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
 ```
 
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png) 
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
 
-The mean of the fixed data
+The mean of total steps taken per day for the fixed data
 
 
 ```r
@@ -141,7 +152,7 @@ mean(grouped.fixed.data$x)
 ## [1] 10761.9
 ```
 
-The median of the fixed data
+The median of total steps taken per day for the fixed data
 
 
 ```r
@@ -156,10 +167,10 @@ median(grouped.fixed.data$x)
 
 
 ```r
-qplot(Group.1, x, data=day.type.data, geom=c("line"), color=Group.3, 
-      xlab="Time", ylab="Average Steps")
+qplot(Group.1, x, data=day.type.data, geom=c("line"), xlab="Time", color=Group.3,
+      ylab="Average Steps") + facet_grid(Group.3 ~ .)
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
 
 
